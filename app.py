@@ -1,3 +1,4 @@
+## Core Imports:
 import random
 import json
 import time
@@ -7,6 +8,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import State, Input, Output
 import dash_daq as daq
+
+##Our Imports:
+from config import BACKGROUND_COLOR
 
 app = dash.Dash(__name__)
 
@@ -36,7 +40,9 @@ satellite_dropdown = dcc.Dropdown(
 
 satellite_dropdown_text = html.P(
     id='satellite-dropdown-text',
-    children=['Formula DashBoard']
+    children=['State Estimation - DashBoard'],
+    style={ 'color': 'blue' , 
+            'fontSize': 14}
 )
 
 satellite_title = html.H1(
@@ -80,7 +86,32 @@ def flatten_path(xy1, xy2):
         res_list.append(xy1 + i * diff_rate)
     return res_list
 
-
+'''
+map_data = [
+        {
+            'x': [20, 40, 70, 100],
+            'y': [40, 70, 80, 90],
+            #'x': [59999634, 59999909, 59900509, 59853843],
+            #'y': [359800000, 359900000, 356700000, 356000000],
+            'text': ['a', 'b', 'c', 'd'],
+            'customdata': ['c.a', 'c.b', 'c.c', 'c.d'],
+            'name': 'Trace 1',
+            'mode': 'markers',
+            'marker': {'size': 12}
+        },
+        {
+            'x': [50, 70, 100, 120],
+            'y': [20, 40, 50, 60],
+            #'x': [59973592, 59955775, 59723772, 59577930],
+            #'y': [358300000, 357800000, 354500000, 354500000],
+            'text': ['w', 'x', 'y', 'z'],
+            'customdata': ['c.w', 'c.x', 'c.y', 'c.z'],
+            'name': 'Trace 2',
+            'mode': 'markers',
+            'marker': {'size': 12}
+        }
+]
+'''
 map_data = [
     {
         'type': 'scattergeo',
@@ -107,7 +138,7 @@ map_data = [
     }
 ]
 
-'''
+
 map_layout = {
     'geo': {
         'showframe': False,
@@ -125,36 +156,12 @@ map_layout = {
     'height': 610,
     'showlegend': False
 }
-'''
+
 map_graph = dcc.Graph(
     id='world-map',
     figure={
-        #'data': map_data,
-        #'layout': map_layout
-        'data': [
-                {
-                    'x': [20, 40, 70, 100],
-                    'y': [40, 70, 80, 90],
-                    #'x': [59999634, 59999909, 59900509, 59853843],
-                    #'y': [359800000, 359900000, 356700000, 356000000],
-                    'text': ['a', 'b', 'c', 'd'],
-                    'customdata': ['c.a', 'c.b', 'c.c', 'c.d'],
-                    'name': 'Trace 1',
-                    'mode': 'markers',
-                    'marker': {'size': 12}
-                },
-                {
-                    'x': [50, 70, 100, 120],
-                    'y': [20, 40, 50, 60],
-                    #'x': [59973592, 59955775, 59723772, 59577930],
-                    #'y': [358300000, 357800000, 354500000, 354500000],
-                    'text': ['w', 'x', 'y', 'z'],
-                    'customdata': ['c.w', 'c.x', 'c.y', 'c.z'],
-                    'name': 'Trace 2',
-                    'mode': 'markers',
-                    'marker': {'size': 12}
-                }
-            ]
+        'data': map_data,
+        'layout': map_layout
     },
     config={
         'displayModeBar': False,
@@ -320,7 +327,7 @@ longitude = html.Div(
             size=24,
             color='#ffe102',
             style={
-                'color': '#black'
+                'color': BACKGROUND_COLOR
             }
         )
     ],
@@ -337,7 +344,7 @@ latitude = html.Div(
             size=24,
             color='#ffe102',
             style={
-                'color': '#black'
+                'color': BACKGROUND_COLOR
             }
         )
     ],
@@ -352,7 +359,7 @@ solar_panel_0 = daq.Indicator(
     value=True,
     color='#ffe102',
     style={
-        'color': '#black'
+        'color': BACKGROUND_COLOR
     }
 )
 
@@ -364,7 +371,7 @@ solar_panel_1 = daq.Indicator(
     value=True,
     color='#ffe102',
     style={
-        'color': '#black'
+        'color': BACKGROUND_COLOR
     }
 )
 
@@ -376,7 +383,7 @@ camera = daq.Indicator(
     value=True,
     color='#ffe102',
     style={
-        'color': '#black'
+        'color': BACKGROUND_COLOR
     }
 )
 
@@ -388,7 +395,7 @@ thrusters = daq.Indicator(
     value=True,
     color='#ffe102',
     style={
-        'color': '#black'
+        'color': BACKGROUND_COLOR
     }
 )
 
@@ -400,7 +407,7 @@ motor = daq.Indicator(
     value=True,
     color='#ffe102',
     style={
-        'color': '#black'
+        'color': BACKGROUND_COLOR
     }
 )
 
@@ -412,7 +419,7 @@ communication_signal = daq.Indicator(
     value=True,
     color='#ffe102',
     style={
-        'color': '#black'
+        'color': BACKGROUND_COLOR
     }
 )
 
@@ -422,7 +429,7 @@ map_toggle = daq.ToggleSwitch(
     label=['Hide path', 'Show path'],
     color='#ffe102',
     style={
-        'color': '#black'
+        'color': BACKGROUND_COLOR
     }
 )
 
@@ -432,7 +439,7 @@ minute_toggle = daq.ToggleSwitch(
     label=['Past Hour', 'Past Minute'],
     color='#ffe102',
     style={
-        'color': '#black'
+        'color': BACKGROUND_COLOR
     }
 )
 
