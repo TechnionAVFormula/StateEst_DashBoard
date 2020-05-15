@@ -46,11 +46,11 @@ for i in range(60):
     file_h_0.write('%f,%f\n' % (lat, lon))
 
 for i in range(3600):
-    lat = 20 + 50 * math.cos(i * 2 * math.pi / 3600 - math.pi/3)
-    lon = 360/3600 * i
+    lat = -6 * math.cos(i * 2 * math.pi / 60)
+    lon = 360/60 * i
     file_m_1.write('%f,%f\n' % (lat, lon))
 
 for i in range(60):
-    lat = 20 + 50 * math.cos(i * 2 * math.pi / 60 - math.pi/3)
+    lat = 0.0
     lon = 360/60 * i
     file_h_1.write('%f,%f\n' % (lat, lon))
