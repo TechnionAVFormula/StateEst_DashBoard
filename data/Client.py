@@ -18,8 +18,8 @@ elif CONFIG == ConfigEnum.LOCAL_TEST:
 else:
     raise NameError('User Should Choose Configuration from config.py')
 
-IN_MESSAGE_FILE = 'state.messages'
-OUT_MESSAGE_FILE = 'StateEst_Dash.messages'
+IN_MESSAGE_FILE = 'data/state.messages'
+OUT_MESSAGE_FILE = 'data/StateEst_Dash.messages'
 
 class ControlClient(ModuleClient):
     def __init__(self):
@@ -42,3 +42,8 @@ class ControlClient(ModuleClient):
 
     def pop_server_message(self, blocking=False, timeout=None):
         return self.server_messages.get(blocking, timeout)
+
+
+if __name__ == "__main__":
+    client = ControlClient
+            

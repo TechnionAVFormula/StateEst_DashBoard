@@ -1,3 +1,10 @@
+## For relative imports
+# import sys, os, pathlib
+# currentPath = pathlib.Path( os.path.dirname(__file__) )
+# relativePath = currentPath.parent
+# sys.path.append(str(relativePath))
+
+
 ## Core Imports:
 import random
 import json
@@ -11,7 +18,7 @@ import dash_daq as daq
 
 ##Our Imports:
 from config import BACKGROUND_COLOR
-from .data import StateEst_DataFromMessage
+from data import StateEst_DataFromMessage
 
 app = dash.Dash(__name__)
 
@@ -536,7 +543,8 @@ df_gps_h_1 = pd.read_csv('./data/gps_data_h_1.csv')
 ##############################################################################################################
 # Root
 ##############################################################################################################
-root_layout = html.Dic(
+
+root_layout = html.Div(
     id='root',
     children=[
         dcc.Store(id='store-placeholder'),
