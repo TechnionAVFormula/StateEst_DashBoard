@@ -114,7 +114,8 @@ map_data = [
 '''
 map_data = [
     {
-        'type': 'scattergeo',
+        # 'type': 'scattergeo',
+        'type': 'scatter',
         'lat': [0],
         'lon': [0],
         'hoverinfo': 'none',
@@ -125,7 +126,8 @@ map_data = [
         },
     },
     {
-        'type': 'scattergeo',
+        # 'type': 'scattergeo',
+        'type': 'scatter',
         'lat': [0],
         'lon': [0],
         'hoverinfo': 'text+lon+lat',
