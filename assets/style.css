@@ -6,14 +6,16 @@ body {
     color: #f3f6fa;
     margin: 0;
     padding: 0;
-    max-width: 100%;
+    max-width: 100%;/* original*/
+    /*max-width: 5%;/*my change*/
     font-family: 'Open Sans', sans-serif;
     font-weight: 100;
     letter-spacing: 0.025rem;
 }
 
 #root {
-    max-width: 100%;
+    /*max-width: 100%; original*/
+    max-width: 5%;/*my change*/
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
@@ -37,6 +39,7 @@ body {
 
 #satellite-dropdown .Select {
     background-color: white;
+    /*margin-top: 100px;my change*/
 }
 .Select-control {
     background-color: #0f0f0f !important;
@@ -45,10 +48,12 @@ body {
 .Select-control .Select-value-label {
     color: #f3f6fa !important;
 }
+
 #satellite-dropdown-text {
     padding-top: 900px;/*my changes*/
-    /*padding: 5px;original
-    margin-left: 40px;original*/
+    /*padding-top: 50px;/*my changes*/
+    /*padding: 5px;/*original
+    /*margin-left: 40px;original*/
     color: #f3f6fa;
     background-color: #0f0f0f;
     font-family: "Open Sans", sans-serif;
@@ -86,7 +91,7 @@ body {
     color: #0f0f0f;
     text-align: center;
     cursor: pointer;
-}
+}/*this is right panel*/
 
 .satellite-description {
     font-size: 10pt;
@@ -147,7 +152,7 @@ body {
 }original*/
 
 #world-map > div > div > svg:nth-child(1) {
-    background: #0f0f0f !important;
+    background: #2ae02a !important;
 }
 
 /**********************************************************************************************************************/
@@ -156,18 +161,23 @@ body {
 
 #panel-lower {
     /*height: 500px;original*/
+
     margin-top: 100;/*my change*/
-    max-width: 100%;
-    position: relative;
+
+    /*max-width: 100%;original*/
+    /*max-width: 0%;/*my change*/
+    /*margin-left: 600;/*new change*/
+    /*margin-top: 75;/*new change*/
+    /*position: relative;original*/
     z-index: 4;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    /*align-items: center; original*/
     justify-content: space-evenly;
     background-color: #0f0f0f;
     padding: 75px 0;
 }
-
+/*
 #panel-lower-top-break {
     display: flex;
     flex-direction: row;
@@ -175,25 +185,29 @@ body {
     /*width: 100%;original*/
     /*margin-top: -40px;original*/
     /*padding: 0 0 20px 0;*/
-}
+}*/
 
 #graph-panel {
     margin-top: 850px;
-    margin-left: 55px;
+    /*margin-left: 55px;*/
 }/*my changes*/
 
 #control-panel-toggle-map {
-    margin-left: 75px;
-    margin-right: 75px;
+    margin-left: 1000px;
+    /*margin-left: 75px;
+    margin-right: 75px;original*/
 }
 
 #control-panel-toggle-minute {
-    margin-left: 100px;
-    margin-right: 25px;
+    margin-left: 800px;
+    /*margin-left: 100px;
+    margin-right: 25px;original*/
 }
 
 #panel-lower-0, #panel-lower-1 {
-    width: 95%;
+    width: 100%;
+    /*width: 95%;original*/
+    /*margin-top: 300px;/*my change*/
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -201,9 +215,12 @@ body {
 }
 
 #panel-lower-0 {
-    margin-bottom: 10px;
+    /*margin-bottom: 10px;
     padding-left: 30px;
-    padding-top: 20px
+    padding-top: 20px;original*/
+    position: absolute;
+    left: 600px;
+    top: 850px;
 }
 
 #control-panel-elevation, #control-panel-temperature, #control-panel-latitude, #control-panel-longitude,
