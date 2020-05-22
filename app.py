@@ -152,8 +152,10 @@ map_layout = {
         'showgrid': True,
 
     },
-    'width': 865,
-    'height': 610,
+    'width': 1300,
+    'height': 750,
+    #'width': 865,original
+    #'height': 610,original
     'showlegend': False
 }
 

@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css?family=Playfair+Display|Roboto');
 
 body {
@@ -25,14 +26,14 @@ body {
 /**********************************************************************************************************************/
 /*Side panel*/
 /**********************************************************************************************************************/
-#panel-side {
+/*#panel-side {
     display: flex;
     flex-direction: column;
     background-color: #0f0f0f;
     position: relative;
     z-index: 5;
     width: 81%;
-}
+}original*/
 
 #satellite-dropdown .Select {
     background-color: white;
@@ -45,8 +46,9 @@ body {
     color: #f3f6fa !important;
 }
 #satellite-dropdown-text {
-    padding: 5px;
-    margin-left: 40px;
+    padding-top: 900px;/*my changes*/
+    /*padding: 5px;original
+    margin-left: 40px;original*/
     color: #f3f6fa;
     background-color: #0f0f0f;
     font-family: "Open Sans", sans-serif;
@@ -55,25 +57,28 @@ body {
     font-weight: bold;
 }
 
-#panel-side-text {
-    padding: 10vh 2rem 0 2rem;
+/*#panel-side-text{
+    /*padding: 10vh 2rem 0 2rem;original
+    padding-top: 50px;my changes
     max-width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     background-color: #0f0f0f;
     color: white;
-}
+}*/
 
 #satellite-name {
-    margin-bottom: 1rem;
+    /*margin-bottom: 1rem;original*/
+    margin-top: 120px;/*my changes*/
 }
 
 #satellite-name {
     font-family: "Open Sans", sans-serif;
     text-align: center;
     font-size: 1.5rem;
-    margin: -0.5rem 0 0 0;
+    /*margin: -0.5rem 0 0 0;original*/
+    margin-top: 120px;/*my changes*/
     letter-spacing: 0.1rem;
 }
 
@@ -85,7 +90,8 @@ body {
 
 .satellite-description {
     font-size: 10pt;
-    line-height: 12pt;
+    /*line-height: 12pt;original*/
+    line-height: -120px;
 
 }
 
@@ -100,7 +106,8 @@ body {
 #panel-upper-lower {
     display: flex;
     flex-direction: column;
-    width: 76%;
+    /*width: 76%; original*/
+    width: 10%;/*my change*/
 }
 
 #placeholder {
@@ -111,8 +118,9 @@ body {
 /*Upper Panel*/
 /**********************************************************************************************************************/
 
-#panel-upper {
+/*#panel-upper {
     margin-top: 10px;
+    height: 1000px;my changes
     height: 350px;
     display: flex;
     flex-direction: row;
@@ -120,20 +128,23 @@ body {
     justify-content: space-evenly;
     position: relative;
     z-index: 2;
-}
+}*/
 
 #world-map {
-    margin: -20px 0 0 -80px;
+    /*margin: -200px 200px 200px -200px;/*my change*/
+    margin-right: 300px;/*my changes*/
+    /*margin: -20px 0 0 -80px;original*/
+    width: 100%;/*my change*/
     position: relative;
-    z-index: 0;
+    /*z-index: 0;*/
 }
-
+/*
 #graph-panel {
     margin-left: -80px;
     position: relative;
     overflow: hidden;
     z-index: 1;
-}
+}original*/
 
 #world-map > div > div > svg:nth-child(1) {
     background: #0f0f0f !important;
@@ -144,7 +155,8 @@ body {
 /**********************************************************************************************************************/
 
 #panel-lower {
-    height: 500px;
+    /*height: 500px;original*/
+    margin-top: 100;/*my change*/
     max-width: 100%;
     position: relative;
     z-index: 4;
@@ -159,10 +171,16 @@ body {
 #panel-lower-top-break {
     display: flex;
     flex-direction: row;
-    width: 100%;
-    margin-top: -40px;
-    padding: 0 0 20px 0;
+    width: 200%;/*my changes*/
+    /*width: 100%;original*/
+    /*margin-top: -40px;original*/
+    /*padding: 0 0 20px 0;*/
 }
+
+#graph-panel {
+    margin-top: 850px;
+    margin-left: 55px;
+}/*my changes*/
 
 #control-panel-toggle-map {
     margin-left: 75px;
