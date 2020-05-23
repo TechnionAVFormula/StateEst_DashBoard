@@ -18,7 +18,7 @@ import dash_daq as daq
 
 ##Our Imports:
 from config import BACKGROUND_COLOR
-from data import StateEst_DataFromMessage
+from data.StateEst_DataFromMessage import ParseDataFromStateEstMessage
 
 app = dash.Dash(__name__)
 
@@ -544,11 +544,13 @@ df_gps_h_1 = pd.read_csv('./data/gps_data_h_1.csv')
 # Root
 ##############################################################################################################
 
+data = ParseDataFromStateEstMessage()
+
 root_layout = html.Div(
     id='root',
     children=[
         dcc.Store(id='store-placeholder'),
-        dcc.Store(id='store-data', data={ 'StateEstimationData' : StateEst_DataFromMessage()} ),
+        dcc.Store(id='store-data', data={ 'StateEstimationData' : data } ),
     ]
 )
 

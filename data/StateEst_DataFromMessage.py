@@ -1,3 +1,21 @@
+IS_PRINT_ON_GOOD_MSGS = True
+#if above is true:
+PRINT_EVERY_NUM_GOOD_MSGS = 50
+
+NO_MSG_LIMIT = 150
+IS_PRINT_ON_NO_FORMULA_MSG = True
+#if the above is true:
+PRINT_EVERY_NUM_NO_FORMULA_MSGS = 5
+
+IS_TIME_CODE_WITH_TIMER = True
+
+
+
+if IS_TIME_CODE_WITH_TIMER:
+    from timeit import default_timer as timer
+
+
+
 import os, sys, pathlib
 currentPath = pathlib.Path( os.path.dirname(__file__) )
 relativePath = currentPath.parent
@@ -6,23 +24,24 @@ sys.path.append(str(relativePath))
 from StateEst_Utils.MessagesClass import messages , NoFormulaMessages
 from data.Client import ControlClient
 
-NO_MSG_LIMIT = 150
+
 class ParserObject():
 
     def __init__(self):
         self._client = ControlClient()
         self._start_client()
-        self._message_timeout = 0.0001
+        self._message_timeout = 0.000001
         #
-        self._data = []
-        self._no_msg_counter = 0
+        self._data = []   # Here we save all the data for later use
+        self._no_msg_counter = 0  # How many times did we fail to read, after  NO_MSG_LIMIT times, we will stop.
+        self._good_msg_counter = 0
         self._is_finish = False
 
 
     def _start_client(self):
         print(f"starting client")
         self._client.connect(1)
-        self._client.set_read_delay(0.05)
+        self._client.set_read_delay(0)
         self._client.start()
 
     def _process_data( self , formula_state_msg ):
@@ -84,11 +103,19 @@ class ParserObject():
                             }
         self._data.append(current_data_dict)
 
+    def _act_on_msg(self):
+        self._no_msg_counter = 0
+        self._good_msg_counter = self._good_msg_counter + 1
+        #Print every PRINT_EVERY_NUM_GOOD_MSGS msgs good:
+        if ( (self._good_msg_counter % PRINT_EVERY_NUM_GOOD_MSGS ) == 0 ) and (IS_PRINT_ON_GOOD_MSGS):
+            print(f"parsed msg number {self._good_msg_counter:6}")
 
 
-    def _act_on_no_msg(self):        
-        print(f"no state msg {self._no_msg_counter:03}")
+    def _act_on_no_msg(self):            
         self._no_msg_counter = self._no_msg_counter + 1
+        #Print error every certein amount of errors.  And only if we want to print
+        if ( ( self._no_msg_counter % PRINT_EVERY_NUM_NO_FORMULA_MSGS ) == 0  ) and ( IS_PRINT_ON_NO_FORMULA_MSG ):
+            print(f"no state msg {self._no_msg_counter:03}")
         if self._no_msg_counter > NO_MSG_LIMIT:
             self._is_finish = True
     
@@ -99,15 +126,16 @@ class ParserObject():
                 server_msg = self._client.pop_server_message()
                 if server_msg is not None:
                     if server_msg.data.Is(messages.server.ExitMessage.DESCRIPTOR):
-                        break
-            # except NoFormulaMessages:
-            #     pass
+                         self._is_finish = True
+            except NoFormulaMessages:
+                pass
             except Exception as e:
                 print(f"{e}")
 
             try:
                 formula_state_msg = self._client.get_formula_state_message(timeout= self._message_timeout )
                 self._process_data( formula_state_msg )
+                self._act_on_msg()
             except NoFormulaMessages:
                 self._act_on_no_msg()
             except Exception as e:
@@ -117,8 +145,16 @@ class ParserObject():
         return self._data
 
 def ParseDataFromStateEstMessage():
+    #time it:
+    if IS_TIME_CODE_WITH_TIMER:
+        execution_time_start = timer()
+    # compute:
     Parser = ParserObject()
     data = Parser._parse_messages_one_by_one()
+    #time it:
+    if IS_TIME_CODE_WITH_TIMER:
+        execution_time_finish = timer()
+        print(f"Parsing took {execution_time_finish - execution_time_start} ms")
     return data
 
 def parse_data_from_cone(cone):
@@ -135,3 +171,4 @@ def parse_data_from_cone(cone):
 
 if __name__ == "__main__":
     data = ParseDataFromStateEstMessage()
+    print(f"data is: {data}")
