@@ -214,34 +214,47 @@ body {
     justify-content: space-evenly;
 }
 
-#panel-lower-0 {
+/*#panel-lower-0 {
     /*margin-bottom: 10px;
     padding-left: 30px;
     padding-top: 20px;original*/
+    /*width: 100%; my change*/
+    /*position: absolute;
+    left: 600px;
+    top: 850px;my change
+}*/
+
+/*#control-panel-elevation, #control-panel-temperature, #control-panel-latitude, #control-panel-longitude,
+#control-panel-speed, #control-panel-fuel, #control-panel-battery {
+    /*cursor: pointer;
+    color: #f3f6fa !important;original*/
+    /*position: absolute;
+    left: 600px;
+    top: 850px;my change
+}*/
+
+
+#control-panel-speed-component {
+    /*margin-bottom: -35px;original*/
     position: absolute;
     left: 600px;
     top: 850px;
 }
 
-#control-panel-elevation, #control-panel-temperature, #control-panel-latitude, #control-panel-longitude,
-#control-panel-speed, #control-panel-fuel, #control-panel-battery {
-    cursor: pointer;
-    color: #f3f6fa !important;
-}
-
-
-#control-panel-speed-component {
-    margin-bottom: -35px;
-}
-
 #control-panel-latitude {
-    margin-bottom: 15px;
+    /*margin-bottom: 15px;original*/
+    position: absolute;
+    left: 640px;
+    top: 850px;
 }
 
 #panel-lower > div {
     width:80%;
     margin-left: 10%;
     margin-right: 10%;
+    /*position: absolute;
+    left: 680px;
+    top: 850px;my change*/
 }
 
 #panel-lower-indicators {
