@@ -97,12 +97,10 @@ def flatten_path(xy1, xy2):
 
 map_data = [
     {
-        # 'type': 'scattergeo',
-        'type': 'scatter',
-        # 'lat': [0],
-        # 'lon': [0],
-        'text': 'Trace',
-        'hoverinfo': 'text+x+y',
+        'type': 'scattergeo',
+        'lat': [0],
+        'lon': [0],
+        'hoverinfo': 'none',
         'mode': 'lines',
         'line': {
             'width': 4,
@@ -110,13 +108,11 @@ map_data = [
         },
     },
     {
-        # 'type': 'scattergeo',
-        'type': 'scatter',
-        'x' : [ 0 ],
-        'y' : [ 0 ],
-        # 'lat': [0],
-        # 'lon': [0],
-        'hoverinfo': 'text+x+y',
+
+        'type': 'scattergeo',
+        'lat': [0],
+        'lon': [0],
+        'hoverinfo': 'text+lon+lat',
         'text': 'Current Position',
         'mode': 'markers',
         'marker': {
