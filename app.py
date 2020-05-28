@@ -17,7 +17,7 @@ from dash.dependencies import State, Input, Output
 import dash_daq as daq
 
 ##Our Imports:
-from config import BACKGROUND_COLOR
+from config import BACKGROUND_COLOR , IS_DARK , DASH_THEME , DashThemeEnum
 from data.StateEst_DataFromMessage import ParseDataFromStateEstMessage
 
 app = dash.Dash(__name__)
@@ -518,6 +518,9 @@ main_panel_layout = html.Div(
 # Data generation
 ##############################################################################################################
 
+data = ParseDataFromStateEstMessage()
+
+
 # Pandas
 df_non_gps_h = pd.read_csv('./data/non_gps_data_h.csv')
 df_non_gps_m = pd.read_csv('./data/non_gps_data_m.csv')
@@ -540,22 +543,11 @@ df_gps_h_1 = pd.read_csv('./data/gps_data_h_1.csv')
 # Root
 ##############################################################################################################
 
-data = ParseDataFromStateEstMessage()
-
 root_layout = html.Div(
     id='root',
     children=[
         dcc.Store(id='store-placeholder'),
-        dcc.Store(id='store-data', data={ 'StateEstimationData' : data } ),
-    ]
-)
-
-
-
-root_layout = html.Div(
-    id='root',
-    children=[
-        dcc.Store(id='store-placeholder'),
+        dcc.Store(id='store-StateEst-data', data=data ),
         dcc.Store(id='store-data', data={
             'hour_data': {
                 'elevation': [df_non_gps_h['elevation'][i] for i in range(60)],
@@ -625,7 +617,6 @@ root_layout = html.Div(
 
 app.layout = root_layout
 
-
 ##############################################################################################################
 # Callbacks Data
 ##############################################################################################################
@@ -634,9 +625,10 @@ app.layout = root_layout
 @app.callback(
     Output('store-data', 'data'),
     [Input('interval', 'n_intervals')],
-    [State('store-data', 'data')]
+    [State('store-data', 'data'),
+     State('store-StateEst-data' , 'data')]
 )
-def update_data(interval, data):
+def update_data(interval, data , state_data):
     new_data = data
     # Update H45-K1 data when sat==0, update L12-5 data when sat==1
     for sat in range(2):
@@ -710,13 +702,14 @@ def update_data(interval, data):
      Input('control-panel-fuel', 'n_clicks'),
      Input('control-panel-battery', 'n_clicks')],
     [State('store-data', 'data'),
-     State('store-data-config', 'data')]
+     State('store-data-config', 'data'),
+     State('store-StateEst-data' ,'data')]
 )
 def update_graph(interval, satellite_type, minute_mode,
                  elevation_n_clicks, temperature_n_clicks, speed_n_clicks,
                  latitude_n_clicks, longitude_n_clicks, fuel_n_clicks,
                  battery_n_clicks, data,
-                 data_config):
+                 data_config , state_data):
     # Used to check stuff
     new_data_config = data_config
     info_type = data_config['info_type']
@@ -957,67 +950,66 @@ def update_satellite_description(val):
      Input('satellite-dropdown-component', 'value')],
     [State('world-map', 'figure'),
      State('store-data', 'data'),
-     State('store-data-config', 'data')]
+     State('store-data-config', 'data'),
+     State('store-StateEst-data','data')]
 )
+def update_word_map(clicks, toggle, satellite_type, old_figure, data, data_config , state_data):
+    figure = old_figure
+    string_buffer = ''
 
+    # Set string buffer as well as drawing the satellite path
+    if data_config['satellite_type'] == 0:
+        string_buffer = '_0'
+        figure['data'][0]['lat'] = [df_gps_m_0['lat'][i] for i in range(3600)]
+        figure['data'][0]['lon'] = [df_gps_m_0['lon'][i] for i in range(3600)]
+
+    elif data_config['satellite_type'] == 1:
+        string_buffer = '_1'
+        figure['data'][0]['lat'] = [df_gps_m_1['lat'][i] for i in range(3600)]
+        figure['data'][0]['lon'] = [df_gps_m_1['lon'][i] for i in range(3600)]
+    else:
+        figure['data'][0]['lat'] = [df_gps_m['lat'][i] for i in range(3600)]
+        figure['data'][0]['lon'] = [df_gps_m['lon'][i] for i in range(3600)]
+
+    if clicks % 2 == 0:
+        figure['data'][1]['lat'] = [float(data['minute_data' + string_buffer]['latitude'][-1])]
+        figure['data'][1]['lon'] = [float(data['minute_data' + string_buffer]['longitude'][-1])]
+
+    # If toggle is off, hide path
+    if not toggle:
+        figure['data'][0]['lat'] = []
+        figure['data'][0]['lon'] = []
+    return figure
 
 # def update_word_map(clicks, toggle, satellite_type, old_figure, data, data_config):
 #     figure = old_figure
 #     string_buffer = ''
-
+ 
+ 
 #     # Set string buffer as well as drawing the satellite path
 #     if data_config['satellite_type'] == 0:
 #         string_buffer = '_0'
-#         figure['data'][0]['lat'] = [df_gps_m_0['lat'][i] for i in range(3600)]
-#         figure['data'][0]['lon'] = [df_gps_m_0['lon'][i] for i in range(3600)]
+#         figure['data'][0]['y'] = [df_gps_m_0['lat'][i] for i in range(3600)]
+#         figure['data'][0]['x'] = [df_gps_m_0['lon'][i] for i in range(3600)]
 
 #     elif data_config['satellite_type'] == 1:
 #         string_buffer = '_1'
-#         figure['data'][0]['lat'] = [df_gps_m_1['lat'][i] for i in range(3600)]
-#         figure['data'][0]['lon'] = [df_gps_m_1['lon'][i] for i in range(3600)]
+#         figure['data'][0]['y'] = [df_gps_m_1['lat'][i] for i in range(3600)]
+#         figure['data'][0]['x'] = [df_gps_m_1['lon'][i] for i in range(3600)]
 #     else:
-#         figure['data'][0]['lat'] = [df_gps_m['lat'][i] for i in range(3600)]
-#         figure['data'][0]['lon'] = [df_gps_m['lon'][i] for i in range(3600)]
+#         figure['data'][0]['y'] = [df_gps_m['lat'][i] for i in range(3600)]
+#         figure['data'][0]['x'] = [df_gps_m['lon'][i] for i in range(3600)]
 
 #     if clicks % 2 == 0:
-#         figure['data'][1]['lat'] = [float(data['minute_data' + string_buffer]['latitude'][-1])]
-#         figure['data'][1]['lon'] = [float(data['minute_data' + string_buffer]['longitude'][-1])]
+
+#         figure['data'][1]['x'] = [float(data['minute_data' + string_buffer]['latitude'][-1])]
+#         figure['data'][1]['y'] = [float(data['minute_data' + string_buffer]['longitude'][-1])]
 
 #     # If toggle is off, hide path
 #     if not toggle:
-#         figure['data'][0]['lat'] = []
-#         figure['data'][0]['lon'] = []
+#         figure['data'][0]['x'] = []
+#         figure['data'][0]['y'] = []
 #     return figure
-
-def update_word_map(clicks, toggle, satellite_type, old_figure, data, data_config):
-    figure = old_figure
-    string_buffer = ''
- 
- 
-    # Set string buffer as well as drawing the satellite path
-    if data_config['satellite_type'] == 0:
-        string_buffer = '_0'
-        figure['data'][0]['y'] = [df_gps_m_0['lat'][i] for i in range(3600)]
-        figure['data'][0]['x'] = [df_gps_m_0['lon'][i] for i in range(3600)]
-
-    elif data_config['satellite_type'] == 1:
-        string_buffer = '_1'
-        figure['data'][0]['y'] = [df_gps_m_1['lat'][i] for i in range(3600)]
-        figure['data'][0]['x'] = [df_gps_m_1['lon'][i] for i in range(3600)]
-    else:
-        figure['data'][0]['y'] = [df_gps_m['lat'][i] for i in range(3600)]
-        figure['data'][0]['x'] = [df_gps_m['lon'][i] for i in range(3600)]
-
-    if clicks % 2 == 0:
-
-        figure['data'][1]['x'] = [float(data['minute_data' + string_buffer]['latitude'][-1])]
-        figure['data'][1]['y'] = [float(data['minute_data' + string_buffer]['longitude'][-1])]
-
-    # If toggle is off, hide path
-    if not toggle:
-        figure['data'][0]['x'] = []
-        figure['data'][0]['y'] = []
-    return figure
 
 
 ##############################################################################################################
@@ -1046,9 +1038,10 @@ def update_time(interval):
     [Input('interval', 'n_intervals'),
      Input('satellite-dropdown-component', 'value')],
     [State('store-data-config', 'data'),
-     State('store-data', 'data')]
+     State('store-data', 'data'),
+     State('store-StateEst-data', 'date')]
 )
-def update_non_gps_component(clicks, satellite_type, data_config, data):
+def update_non_gps_component(clicks, satellite_type, data_config, data ,sate_data):
     string_buffer = ''
     if data_config['satellite_type'] == 0:
         string_buffer = '_0'

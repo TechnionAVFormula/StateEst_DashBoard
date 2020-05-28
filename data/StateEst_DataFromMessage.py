@@ -1,3 +1,5 @@
+IS_PRINT_ABOUT_DATA = True
+
 IS_PRINT_ON_GOOD_MSGS = True
 #if above is true:
 PRINT_EVERY_NUM_GOOD_MSGS = 50
@@ -8,6 +10,8 @@ IS_PRINT_ON_NO_FORMULA_MSG = True
 PRINT_EVERY_NUM_NO_FORMULA_MSGS = 5
 
 IS_TIME_CODE_WITH_TIMER = True
+
+PICKLED_FILE_NAME = 'state.pickle'
 
 
 
@@ -24,6 +28,8 @@ sys.path.append(str(relativePath))
 from StateEst_Utils.MessagesClass import messages , NoFormulaMessages
 from data.Client import ControlClient
 
+
+import pickle
 
 class ParserObject():
 
@@ -145,17 +151,55 @@ class ParserObject():
         return self._data
 
 def ParseDataFromStateEstMessage():
-    #time it:
-    if IS_TIME_CODE_WITH_TIMER:
-        execution_time_start = timer()
-    # compute:
-    Parser = ParserObject()
-    data = Parser._parse_messages_one_by_one()
-    #time it:
-    if IS_TIME_CODE_WITH_TIMER:
-        execution_time_finish = timer()
-        print(f"Parsing took {execution_time_finish - execution_time_start} ms")
+    #Check if existing a pickled data:
+    is_exist_pickled , data = load_data(PICKLED_FILE_NAME)
+    if is_exist_pickled:
+        pass #do nothing
+    else:
+        #time it:
+        if IS_TIME_CODE_WITH_TIMER:
+            execution_time_start = timer()
+        # extract data from .messages file:
+        Parser = ParserObject()
+        data = Parser._parse_messages_one_by_one()
+        #time it:
+        if IS_TIME_CODE_WITH_TIMER:
+            execution_time_finish = timer()
+            print(f"Parsing took {execution_time_finish - execution_time_start} ms")
+        #Save data for faster load, at later time
+        save_data(data , PICKLED_FILE_NAME)
+        
+    #Print info:
+    if IS_PRINT_ABOUT_DATA:
+        print(f"Data length is {len(data)}")
     return data
+
+
+def save_data(data,fileName):
+    fullpath = os.path.join( str(currentPath.parent) ,'data',fileName )
+    pickle.dump( data, open( fullpath, "wb" ) )
+    print(f"Saving data file for later use.")
+
+def load_data(fileName):
+    #Try to pickle data:
+    try:
+        fullpath = os.path.join( str(currentPath.parent) , 'data' , fileName )
+        pickled_data =  pickle.load(  open( fullpath, "rb" )  )   
+        if IS_PRINT_ABOUT_DATA:
+            print(f"Using pre-processed data file.") 
+        is_exist_pickled = True
+        data = pickled_data
+    # if failed, send to main function to parse from .messages file:
+    except Exception as e:
+        if e.args[1] == 'No such file or directory':
+            if IS_PRINT_ABOUT_DATA:
+                print(f"No pre-processed data file.")
+            is_exist_pickled = False
+            data = None
+        else:
+            raise e
+    return is_exist_pickled , data
+
 
 def parse_data_from_cone(cone):
     cone_dict = {
@@ -171,4 +215,5 @@ def parse_data_from_cone(cone):
 
 if __name__ == "__main__":
     data = ParseDataFromStateEstMessage()
-    print(f"data is: {data}")
+    print(f"Done. First element in data is:")
+    print(f"{data[0]}")

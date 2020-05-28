@@ -19,7 +19,7 @@ else:
     raise NameError('User Should Choose Configuration from config.py')
 
 IN_MESSAGE_FILE = 'data/state.messages'
-OUT_MESSAGE_FILE = 'data/StateEst_Dash.messages'
+OUT_MESSAGE_FILE = 'data/StateEst_Dash_output.messages'
 
 class ControlClient(ModuleClient):
     def __init__(self):
