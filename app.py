@@ -1,3 +1,10 @@
+## For relative imports
+# import sys, os, pathlib
+# currentPath = pathlib.Path( os.path.dirname(__file__) )
+# relativePath = currentPath.parent
+# sys.path.append(str(relativePath))
+
+
 ## Core Imports:
 import random
 import json
@@ -11,6 +18,7 @@ import dash_daq as daq
 
 ##Our Imports:
 from config import BACKGROUND_COLOR
+from data.StateEst_DataFromMessage import ParseDataFromStateEstMessage
 
 app = dash.Dash(__name__)
 
@@ -86,32 +94,7 @@ def flatten_path(xy1, xy2):
         res_list.append(xy1 + i * diff_rate)
     return res_list
 
-'''
-map_data = [
-        {
-            'x': [20, 40, 70, 100],
-            'y': [40, 70, 80, 90],
-            #'x': [59999634, 59999909, 59900509, 59853843],
-            #'y': [359800000, 359900000, 356700000, 356000000],
-            'text': ['a', 'b', 'c', 'd'],
-            'customdata': ['c.a', 'c.b', 'c.c', 'c.d'],
-            'name': 'Trace 1',
-            'mode': 'markers',
-            'marker': {'size': 12}
-        },
-        {
-            'x': [50, 70, 100, 120],
-            'y': [20, 40, 50, 60],
-            #'x': [59973592, 59955775, 59723772, 59577930],
-            #'y': [358300000, 357800000, 354500000, 354500000],
-            'text': ['w', 'x', 'y', 'z'],
-            'customdata': ['c.w', 'c.x', 'c.y', 'c.z'],
-            'name': 'Trace 2',
-            'mode': 'markers',
-            'marker': {'size': 12}
-        }
-]
-'''
+
 map_data = [
     {
         'type': 'scattergeo',
@@ -120,11 +103,12 @@ map_data = [
         'hoverinfo': 'none',
         'mode': 'lines',
         'line': {
-            'width': 2,
+            'width': 4,
             'color': '#707070'
         },
     },
     {
+
         'type': 'scattergeo',
         'lat': [0],
         'lon': [0],
@@ -140,34 +124,32 @@ map_data = [
 
 
 map_layout = {
-    'geo': {
-        'showframe': False,
-        'showcoastlines': False,
-        'showland': True,
-        'showocean': True,
-        'resolution': 100,
-        'landcolor': '#303030',
-        'oceancolor': '#0f0f0f',
-        'scope': 'world',
-        'showgrid': True,
+    # 'geo': {
+    #     'showframe': False,
+    #     'showcoastlines': False,
+    #     'showland': True,
+    #     'showocean': True,
+    #     'resolution': 100,
+    #     'landcolor': '#303030',
+    #     'oceancolor': '#0f0f0f',
+    #     'scope': 'world',
+    #     'showgrid': True,
 
-    },
+    # },
     'width': 1300,
     'height': 750,
-    #'width': 865,original
-    #'height': 610,original
-    'showlegend': False
+    'showlegend': True
 }
 
 map_graph = dcc.Graph(
     id='world-map',
-    figure={
+    figure={        
         'data': map_data,
         'layout': map_layout
     },
     config={
-        'displayModeBar': False,
-        'scrollZoom': False,
+        'displayModeBar': True,
+        'scrollZoom': True,
     }
 )
 
@@ -557,6 +539,19 @@ df_gps_h_1 = pd.read_csv('./data/gps_data_h_1.csv')
 ##############################################################################################################
 # Root
 ##############################################################################################################
+
+data = ParseDataFromStateEstMessage()
+
+root_layout = html.Div(
+    id='root',
+    children=[
+        dcc.Store(id='store-placeholder'),
+        dcc.Store(id='store-data', data={ 'StateEstimationData' : data } ),
+    ]
+)
+
+
+
 root_layout = html.Div(
     id='root',
     children=[
@@ -964,32 +959,64 @@ def update_satellite_description(val):
      State('store-data', 'data'),
      State('store-data-config', 'data')]
 )
+
+
+# def update_word_map(clicks, toggle, satellite_type, old_figure, data, data_config):
+#     figure = old_figure
+#     string_buffer = ''
+
+#     # Set string buffer as well as drawing the satellite path
+#     if data_config['satellite_type'] == 0:
+#         string_buffer = '_0'
+#         figure['data'][0]['lat'] = [df_gps_m_0['lat'][i] for i in range(3600)]
+#         figure['data'][0]['lon'] = [df_gps_m_0['lon'][i] for i in range(3600)]
+
+#     elif data_config['satellite_type'] == 1:
+#         string_buffer = '_1'
+#         figure['data'][0]['lat'] = [df_gps_m_1['lat'][i] for i in range(3600)]
+#         figure['data'][0]['lon'] = [df_gps_m_1['lon'][i] for i in range(3600)]
+#     else:
+#         figure['data'][0]['lat'] = [df_gps_m['lat'][i] for i in range(3600)]
+#         figure['data'][0]['lon'] = [df_gps_m['lon'][i] for i in range(3600)]
+
+#     if clicks % 2 == 0:
+#         figure['data'][1]['lat'] = [float(data['minute_data' + string_buffer]['latitude'][-1])]
+#         figure['data'][1]['lon'] = [float(data['minute_data' + string_buffer]['longitude'][-1])]
+
+#     # If toggle is off, hide path
+#     if not toggle:
+#         figure['data'][0]['lat'] = []
+#         figure['data'][0]['lon'] = []
+#     return figure
+
 def update_word_map(clicks, toggle, satellite_type, old_figure, data, data_config):
     figure = old_figure
     string_buffer = ''
-
+ 
+ 
     # Set string buffer as well as drawing the satellite path
     if data_config['satellite_type'] == 0:
         string_buffer = '_0'
-        figure['data'][0]['lat'] = [df_gps_m_0['lat'][i] for i in range(3600)]
-        figure['data'][0]['lon'] = [df_gps_m_0['lon'][i] for i in range(3600)]
+        figure['data'][0]['y'] = [df_gps_m_0['lat'][i] for i in range(3600)]
+        figure['data'][0]['x'] = [df_gps_m_0['lon'][i] for i in range(3600)]
 
     elif data_config['satellite_type'] == 1:
         string_buffer = '_1'
-        figure['data'][0]['lat'] = [df_gps_m_1['lat'][i] for i in range(3600)]
-        figure['data'][0]['lon'] = [df_gps_m_1['lon'][i] for i in range(3600)]
+        figure['data'][0]['y'] = [df_gps_m_1['lat'][i] for i in range(3600)]
+        figure['data'][0]['x'] = [df_gps_m_1['lon'][i] for i in range(3600)]
     else:
-        figure['data'][0]['lat'] = [df_gps_m['lat'][i] for i in range(3600)]
-        figure['data'][0]['lon'] = [df_gps_m['lon'][i] for i in range(3600)]
+        figure['data'][0]['y'] = [df_gps_m['lat'][i] for i in range(3600)]
+        figure['data'][0]['x'] = [df_gps_m['lon'][i] for i in range(3600)]
 
     if clicks % 2 == 0:
-        figure['data'][1]['lat'] = [float(data['minute_data' + string_buffer]['latitude'][-1])]
-        figure['data'][1]['lon'] = [float(data['minute_data' + string_buffer]['longitude'][-1])]
+
+        figure['data'][1]['x'] = [float(data['minute_data' + string_buffer]['latitude'][-1])]
+        figure['data'][1]['y'] = [float(data['minute_data' + string_buffer]['longitude'][-1])]
 
     # If toggle is off, hide path
     if not toggle:
-        figure['data'][0]['lat'] = []
-        figure['data'][0]['lon'] = []
+        figure['data'][0]['x'] = []
+        figure['data'][0]['y'] = []
     return figure
 
 
