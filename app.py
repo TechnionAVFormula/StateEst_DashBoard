@@ -17,7 +17,7 @@ from dash.dependencies import State, Input, Output
 import dash_daq as daq
 
 ##Our Imports:
-from config import BACKGROUND_COLOR , IS_DARK , DASH_THEME , DashThemeEnum
+from config import BACKGROUND_COLOR , IS_DARK , DASH_THEME , FONT_COLOR, DashThemeEnum
 from data.StateEst_DataFromMessage import ParseDataFromStateEstMessage
 
 app = dash.Dash(__name__)
@@ -33,12 +33,8 @@ satellite_dropdown = dcc.Dropdown(
     id='satellite-dropdown-component',
     options=[
         {
-            'label': 'H45-K1',
+            'label': 'StateEst Default',
             'value': 'h45-k1'
-        },
-        {
-            'label': 'L12-5',
-            'value': 'l12-5'
         },
     ],
     clearable=False,
@@ -97,9 +93,9 @@ def flatten_path(xy1, xy2):
 
 map_data = [
     {
-        'type': 'scattergeo',
-        'lat': [0],
-        'lon': [0],
+        'type': 'scatter',
+        'x': [0, 5  , 10],
+        'y': [0, 60 , 20],
         'hoverinfo': 'none',
         'mode': 'lines',
         'line': {
@@ -109,33 +105,21 @@ map_data = [
     },
     {
 
-        'type': 'scattergeo',
-        'lat': [0],
-        'lon': [0],
-        'hoverinfo': 'text+lon+lat',
+        'type': 'scatter',
+        'x': [0, 4 , 6  ,  8 ],
+        'y': [0, 1 , 60 , -60],
+        'hoverinfo': 'x+y',
         'text': 'Current Position',
         'mode': 'markers',
         'marker': {
-            'size': 10,
+            'size': 15,
             'color': '#ffe102'
         },
     }
 ]
 
-
 map_layout = {
-    # 'geo': {
-    #     'showframe': False,
-    #     'showcoastlines': False,
-    #     'showland': True,
-    #     'showocean': True,
-    #     'resolution': 100,
-    #     'landcolor': '#303030',
-    #     'oceancolor': '#0f0f0f',
-    #     'scope': 'world',
-    #     'showgrid': True,
-
-    # },
+    'title': 'Estimated Map',
     'width': 1300,
     'height': 750,
     'showlegend': True
@@ -188,7 +172,7 @@ histogram = dcc.Graph(
             'plot_bgcolor': '#0f0f0f',
             'paper_bgcolor': '#0f0f0f',
             'font': {
-                'color': 'white'
+                'color': FONT_COLOR
             },
         }
     },
@@ -301,11 +285,11 @@ battery_indicator = html.Div(
     n_clicks=0
 )
 
-longitude = html.Div(
-    id='control-panel-longitude',
+y = html.Div(
+    id='control-panel-y',
     children=[
         daq.LEDDisplay(
-            id='control-panel-longitude-component',
+            id='control-panel-y-component',
             value='0000.0000',
             label='Longitude',
             size=24,
@@ -318,11 +302,11 @@ longitude = html.Div(
     n_clicks=0
 )
 
-latitude = html.Div(
-    id='control-panel-latitude',
+x = html.Div(
+    id='control-panel-x',
     children=[
         daq.LEDDisplay(
-            id='control-panel-latitude-component',
+            id='control-panel-x-component',
             value='0050.9789',
             label='Latitude',
             size=24,
@@ -447,7 +431,7 @@ main_panel_layout = html.Div(
         ),
         html.Div(
             id='panel-lower',
-            children=[daq.DarkThemeProvider(theme={'dark': True}, children=[
+            children=[daq.DarkThemeProvider(theme={'dark': IS_DARK}, children=[
                 html.Div(
                     id='panel-lower-top-break',
                     children=[
@@ -470,8 +454,8 @@ main_panel_layout = html.Div(
                         html.Div(
                             id='panel-lower-led-displays',
                             children=[
-                                latitude,
-                                longitude,
+                                x,
+                                y,
                             ]
                         ),
                         html.Div(
@@ -533,12 +517,6 @@ df_non_gps_m_0 = pd.read_csv('./data/non_gps_data_m_0.csv')
 df_gps_m_0 = pd.read_csv('./data/gps_data_m_0.csv')
 df_gps_h_0 = pd.read_csv('./data/gps_data_h_0.csv')
 
-# Satellite L12-5 data
-df_non_gps_h_1 = pd.read_csv('./data/non_gps_data_h_1.csv')
-df_non_gps_m_1 = pd.read_csv('./data/non_gps_data_m_1.csv')
-df_gps_m_1 = pd.read_csv('./data/gps_data_m_1.csv')
-df_gps_h_1 = pd.read_csv('./data/gps_data_h_1.csv')
-
 ##############################################################################################################
 # Root
 ##############################################################################################################
@@ -549,30 +527,12 @@ root_layout = html.Div(
         dcc.Store(id='store-placeholder'),
         dcc.Store(id='store-StateEst-data', data=data ),
         dcc.Store(id='store-data', data={
-            'hour_data': {
-                'elevation': [df_non_gps_h['elevation'][i] for i in range(60)],
-                'temperature': [df_non_gps_h['temperature'][i] for i in range(60)],
-                'speed': [df_non_gps_h['speed'][i] for i in range(60)],
-                'latitude': ['{0:09.4f}'.format(df_gps_h['lat'][i]) for i in range(60)],
-                'longitude': ['{0:09.4f}'.format(df_gps_h['lon'][i]) for i in range(60)],
-                'fuel': [df_non_gps_h['fuel'][i] for i in range(60)],
-                'battery': [df_non_gps_h['battery'][i] for i in range(60)],
-            },
-            'minute_data': {
-                'elevation': [df_non_gps_m['elevation'][i] for i in range(60)],
-                'temperature': [df_non_gps_m['temperature'][i] for i in range(60)],
-                'speed': [df_non_gps_m['speed'][i] for i in range(60)],
-                'latitude': ['{0:09.4f}'.format(df_gps_m['lat'][i]) for i in range(60)],
-                'longitude': ['{0:09.4f}'.format(df_gps_m['lon'][i]) for i in range(60)],
-                'fuel': [df_non_gps_m['fuel'][i] for i in range(60)],
-                'battery': [df_non_gps_m['battery'][i] for i in range(60)],
-            },
             'hour_data_0': {
                 'elevation': [df_non_gps_h_0['elevation'][i] for i in range(60)],
                 'temperature': [df_non_gps_h_0['temperature'][i] for i in range(60)],
                 'speed': [df_non_gps_h_0['speed'][i] for i in range(60)],
-                'latitude': ['{0:09.4f}'.format(df_gps_h_0['lat'][i]) for i in range(60)],
-                'longitude': ['{0:09.4f}'.format(df_gps_h_0['lon'][i]) for i in range(60)],
+                'x': ['{0:09.4f}'.format(df_gps_h_0['lat'][i]) for i in range(60)],
+                'y': ['{0:09.4f}'.format(df_gps_h_0['lon'][i]) for i in range(60)],
                 'fuel': [df_non_gps_h_0['fuel'][i] for i in range(60)],
                 'battery': [df_non_gps_h_0['battery'][i] for i in range(60)],
             },
@@ -580,28 +540,10 @@ root_layout = html.Div(
                 'elevation': [df_non_gps_m_0['elevation'][i] for i in range(60)],
                 'temperature': [df_non_gps_m_0['temperature'][i] for i in range(60)],
                 'speed': [df_non_gps_m_0['speed'][i] for i in range(60)],
-                'latitude': ['{0:09.4f}'.format(df_gps_m_0['lat'][i]) for i in range(60)],
-                'longitude': ['{0:09.4f}'.format(df_gps_m_0['lon'][i]) for i in range(60)],
+                'x': ['{0:09.4f}'.format(df_gps_m_0['lat'][i]) for i in range(60)],
+                'y': ['{0:09.4f}'.format(df_gps_m_0['lon'][i]) for i in range(60)],
                 'fuel': [df_non_gps_m_0['fuel'][i] for i in range(60)],
                 'battery': [df_non_gps_m_0['battery'][i] for i in range(60)],
-            },
-            'hour_data_1': {
-                'elevation': [df_non_gps_h_1['elevation'][i] for i in range(60)],
-                'temperature': [df_non_gps_h_1['temperature'][i] for i in range(60)],
-                'speed': [df_non_gps_h_1['speed'][i] for i in range(60)],
-                'latitude': ['{0:09.4f}'.format(df_gps_h_1['lat'][i]) for i in range(60)],
-                'longitude': ['{0:09.4f}'.format(df_gps_h_1['lon'][i]) for i in range(60)],
-                'fuel': [df_non_gps_h_1['fuel'][i] for i in range(60)],
-                'battery': [df_non_gps_h_1['battery'][i] for i in range(60)],
-            },
-            'minute_data_1': {
-                'elevation': [df_non_gps_m_1['elevation'][i] for i in range(60)],
-                'temperature': [df_non_gps_m_1['temperature'][i] for i in range(60)],
-                'speed': [df_non_gps_m_1['speed'][i] for i in range(60)],
-                'latitude': ['{0:09.4f}'.format(df_gps_m_1['lat'][i]) for i in range(60)],
-                'longitude': ['{0:09.4f}'.format(df_gps_m_1['lon'][i]) for i in range(60)],
-                'fuel': [df_non_gps_m_1['fuel'][i] for i in range(60)],
-                'battery': [df_non_gps_m_1['battery'][i] for i in range(60)],
             }
 
         }),
@@ -631,54 +573,44 @@ app.layout = root_layout
 def update_data(interval, data , state_data):
     new_data = data
     # Update H45-K1 data when sat==0, update L12-5 data when sat==1
-    for sat in range(2):
-        if sat == 0:
-            gps_minute_file = df_gps_m_0
-            gps_hour_file = df_gps_h_0
-        else:
-            gps_minute_file = df_gps_m_1
-            gps_hour_file = df_gps_h_1
+    gps_minute_file = df_gps_m_0
+    gps_hour_file = df_gps_h_0
 
-        m_data_key = 'minute_data_' + str(sat)
-        #Me:to my mind, this is data from cvs-files (gps_data_m_0 for example)
-        h_data_key = 'hour_data_' + str(sat)
-        #Me:to my mind, this is data from cvs-files (gps_data_h for example)
+    m_data_key = 'minute_data_0'
+    #Me:to my mind, this is data from cvs-files (gps_data_m_0 for example)
+    h_data_key = 'hour_data_0' 
+    #Me:to my mind, this is data from cvs-files (gps_data_h for example)
 
-        new_data[m_data_key]['elevation'].append(data[m_data_key]['elevation'][0])
-        new_data[m_data_key]['elevation'] = new_data[m_data_key]['elevation'][1:61]
-        new_data[m_data_key]['temperature'].append(data[m_data_key]['temperature'][0])
-        new_data[m_data_key]['temperature'] = new_data[m_data_key]['temperature'][1:61]
-        new_data[m_data_key]['speed'].append(data[m_data_key]['speed'][0])
-        new_data[m_data_key]['speed'] = new_data[m_data_key]['speed'][1:61]
-        new_data[m_data_key]['latitude'].append(
-            '{0:09.4f}'.format(gps_minute_file['lat'][(60 + interval) % 3600]))
-        new_data[m_data_key]['latitude'] = new_data[m_data_key]['latitude'][1:61]
-        new_data[m_data_key]['longitude'].append(
-            '{0:09.4f}'.format(gps_minute_file['lon'][(60 + interval) % 3600]))
-        new_data[m_data_key]['longitude'] = new_data[m_data_key]['longitude'][1:61]
+    new_data[m_data_key]['elevation'].append(data[m_data_key]['elevation'][0])
+    new_data[m_data_key]['elevation'] = new_data[m_data_key]['elevation'][1:61]
+    new_data[m_data_key]['temperature'].append(data[m_data_key]['temperature'][0])
+    new_data[m_data_key]['temperature'] = new_data[m_data_key]['temperature'][1:61]
+    new_data[m_data_key]['speed'].append(data[m_data_key]['speed'][0])
+    new_data[m_data_key]['speed'] = new_data[m_data_key]['speed'][1:61]
+    new_data[m_data_key]['x'].append('{0:09.4f}'.format(gps_minute_file['lat'][(60 + interval) % 3600]) )
+    new_data[m_data_key]['x'] = new_data[m_data_key]['x'][1:61]
+    new_data[m_data_key]['y'].append('{0:09.4f}'.format(gps_minute_file['lon'][(60 + interval) % 3600]) )
+    new_data[m_data_key]['y'] = new_data[m_data_key]['y'][1:61]
+    new_data[m_data_key]['fuel'].append(data[m_data_key]['fuel'][0])
+    new_data[m_data_key]['fuel'] = new_data[m_data_key]['fuel'][1:61]
+    new_data[m_data_key]['battery'].append(data[m_data_key]['battery'][0])
+    new_data[m_data_key]['battery'] = new_data['minute_data_0']['battery'][1:61]
 
-        new_data[m_data_key]['fuel'].append(data[m_data_key]['fuel'][0])
-        new_data[m_data_key]['fuel'] = new_data[m_data_key]['fuel'][1:61]
-        new_data[m_data_key]['battery'].append(data[m_data_key]['battery'][0])
-        new_data[m_data_key]['battery'] = new_data['minute_data_0']['battery'][1:61]
-
-        if interval % 60000 == 0:
-            new_data[h_data_key]['elevation'].append(data[h_data_key]['elevation'][0])
-            new_data[h_data_key]['elevation'] = new_data[h_data_key]['elevation'][1:61]
-            new_data[h_data_key]['temperature'].append(data[h_data_key]['temperature'][0])
-            new_data[h_data_key]['temperature'] = new_data[h_data_key]['temperature'][1:61]
-            new_data[h_data_key]['speed'].append(data[h_data_key]['speed'][0])
-            new_data[h_data_key]['speed'] = new_data[h_data_key]['speed'][1:61]
-            new_data[h_data_key]['latitude'].append(
-                '{0:09.4f}'.format(gps_hour_file['lat'][interval % 60]))
-            new_data[h_data_key]['latitude'] = new_data[h_data_key]['latitude'][1:61]
-            new_data[h_data_key]['longitude'].append(
-                '{0:09.4f}'.format(gps_hour_file['lon'][interval % 60]))
-            new_data[h_data_key]['longitude'] = new_data[h_data_key]['longitude'][1:61]
-            new_data[h_data_key]['fuel'].append(data[h_data_key]['fuel'][0])
-            new_data[h_data_key]['fuel'] = new_data[h_data_key]['fuel'][1:61]
-            new_data[h_data_key]['battery'].append(data[h_data_key]['battery'][0])
-            new_data[h_data_key]['battery'] = new_data[h_data_key]['battery']
+    if interval % 60000 == 0:
+        new_data[h_data_key]['elevation'].append(data[h_data_key]['elevation'][0])
+        new_data[h_data_key]['elevation'] = new_data[h_data_key]['elevation'][1:61]
+        new_data[h_data_key]['temperature'].append(data[h_data_key]['temperature'][0])
+        new_data[h_data_key]['temperature'] = new_data[h_data_key]['temperature'][1:61]
+        new_data[h_data_key]['speed'].append(data[h_data_key]['speed'][0])
+        new_data[h_data_key]['speed'] = new_data[h_data_key]['speed'][1:61]
+        new_data[h_data_key]['x'].append('{0:09.4f}'.format(gps_hour_file['lat'][interval % 60]))
+        new_data[h_data_key]['x'] = new_data[h_data_key]['x'][1:61]
+        new_data[h_data_key]['y'].append('{0:09.4f}'.format(gps_hour_file['lon'][interval % 60]))
+        new_data[h_data_key]['y'] = new_data[h_data_key]['y'][1:61]
+        new_data[h_data_key]['fuel'].append(data[h_data_key]['fuel'][0])
+        new_data[h_data_key]['fuel'] = new_data[h_data_key]['fuel'][1:61]
+        new_data[h_data_key]['battery'].append(data[h_data_key]['battery'][0])
+        new_data[h_data_key]['battery'] = new_data[h_data_key]['battery']
 
     return new_data
 
@@ -697,8 +629,8 @@ def update_data(interval, data , state_data):
      Input('control-panel-elevation', 'n_clicks'),
      Input('control-panel-temperature', 'n_clicks'),
      Input('control-panel-speed', 'n_clicks'),
-     Input('control-panel-latitude', 'n_clicks'),
-     Input('control-panel-longitude', 'n_clicks'),
+     Input('control-panel-x', 'n_clicks'),
+     Input('control-panel-y', 'n_clicks'),
      Input('control-panel-fuel', 'n_clicks'),
      Input('control-panel-battery', 'n_clicks')],
     [State('store-data', 'data'),
@@ -724,8 +656,6 @@ def update_graph(interval, satellite_type, minute_mode,
     # Update store-data-config['satellite_type']
     if satellite_type == 'h45-k1':
         new_data_config['satellite_type'] = 0
-    elif satellite_type == 'l12-5':
-        new_data_config['satellite_type'] = 1
     else:
         new_data_config['satellite_type'] = None
 
@@ -770,7 +700,7 @@ def update_graph(interval, satellite_type, minute_mode,
                     'autorange': False
                 }
 
-        elif data_key == 'latitude':
+        elif data_key == 'x':
             if minute_mode:
                 figure['layout']['yaxis'] = {
                     'rangemode': 'normal',
@@ -784,7 +714,7 @@ def update_graph(interval, satellite_type, minute_mode,
                     'dtick': 30,
                 }
 
-        elif data_key == 'longitude':
+        elif data_key == 'y':
             if minute_mode:
                 figure['layout']['yaxis'] = {
                     'rangemode': 'normal',
@@ -812,16 +742,11 @@ def update_graph(interval, satellite_type, minute_mode,
 
     # Function to update values
     def update_graph_data(data_key):
-        string_buffer = ''
-        if data_config['satellite_type'] == 0:
-            string_buffer = '_0'
-        elif data_config['satellite_type'] == 1:
-            string_buffer = '_1'
 
         if minute_mode:
-            figure['data'][0]['y'] = list(reversed(data['minute_data' + string_buffer][data_key]))
+            figure['data'][0]['y'] = list(reversed(data['minute_data_0' ][data_key]))
         else:
-            figure['data'][0]['y'] = list(reversed(data['hour_data' + string_buffer][data_key]))
+            figure['data'][0]['y'] = list(reversed(data['hour_data_0' ][data_key]))
 
         # Graph title changes depending on graphed data
         figure['layout']['title'] = data_key.capitalize() + ' Histogram'
@@ -857,7 +782,7 @@ def update_graph(interval, satellite_type, minute_mode,
             'plot_bgcolor': '#0f0f0f',
             'paper_bgcolor': '#0f0f0f',
             'font': {
-                'color': 'white'
+                'color': FONT_COLOR
             }
         }
     }
@@ -875,13 +800,13 @@ def update_graph(interval, satellite_type, minute_mode,
         set_y_range('speed')
         info_type = update_graph_data('speed')
 
-    elif trigger_input == 'control-panel-latitude':
-        set_y_range('latitude')
-        info_type = update_graph_data('latitude')
+    elif trigger_input == 'control-panel-x':
+        set_y_range('x')
+        info_type = update_graph_data('x')
 
-    elif trigger_input == 'control-panel-longitude':
-        set_y_range('longitude')
-        info_type = update_graph_data('longitude')
+    elif trigger_input == 'control-panel-y':
+        set_y_range('y')
+        info_type = update_graph_data('y')
 
     elif trigger_input == 'control-panel-fuel':
         set_y_range('fuel')
@@ -893,7 +818,7 @@ def update_graph(interval, satellite_type, minute_mode,
 
     # If no component has been selected, check for most recent info_type, to prevent graph from always resetting
     else:
-        if info_type in ['elevation', 'temperature', 'speed', 'latitude', 'longitude', 'fuel', 'battery']:
+        if info_type in ['elevation', 'temperature', 'speed', 'x', 'y', 'fuel', 'battery']:
             set_y_range(info_type)
             update_graph_data(info_type)
         else:
@@ -916,8 +841,6 @@ def update_graph(interval, satellite_type, minute_mode,
 def update_satellite_name(val):
     if val == 'h45-k1':
         return 'Satellite\nH45-K1'
-    elif val == 'l12-5':
-        return 'Satellite\nL12-5'
     else:
         return ''
 
@@ -933,9 +856,6 @@ def update_satellite_description(val):
     if val == 'h45-k1':
         text = 'This dash-board should include map of cones, '\
                 'location and velocuty of formula car and some else information.'
-
-    elif val == 'l12-5':
-        text = 'There was a text about l12-5 but I made some changes to see how does it works. Ariela. '
     return text
 
 
@@ -953,63 +873,26 @@ def update_satellite_description(val):
      State('store-data-config', 'data'),
      State('store-StateEst-data','data')]
 )
-def update_word_map(clicks, toggle, satellite_type, old_figure, data, data_config , state_data):
+def update_world_map(clicks, toggle, satellite_type, old_figure, data, data_config , state_data):
     figure = old_figure
-    string_buffer = ''
 
     # Set string buffer as well as drawing the satellite path
     if data_config['satellite_type'] == 0:
-        string_buffer = '_0'
-        figure['data'][0]['lat'] = [df_gps_m_0['lat'][i] for i in range(3600)]
-        figure['data'][0]['lon'] = [df_gps_m_0['lon'][i] for i in range(3600)]
-
-    elif data_config['satellite_type'] == 1:
-        string_buffer = '_1'
-        figure['data'][0]['lat'] = [df_gps_m_1['lat'][i] for i in range(3600)]
-        figure['data'][0]['lon'] = [df_gps_m_1['lon'][i] for i in range(3600)]
+        figure['data'][0]['x'] = [df_gps_m_0['lat'][i] for i in range(3600)]
+        figure['data'][0]['y'] = [df_gps_m_0['lon'][i] for i in range(3600)]
     else:
-        figure['data'][0]['lat'] = [df_gps_m['lat'][i] for i in range(3600)]
-        figure['data'][0]['lon'] = [df_gps_m['lon'][i] for i in range(3600)]
+        figure['data'][0]['x'] = [df_gps_m['lat'][i] for i in range(3600)]
+        figure['data'][0]['y'] = [df_gps_m['lon'][i] for i in range(3600)]
 
     if clicks % 2 == 0:
-        figure['data'][1]['lat'] = [float(data['minute_data' + string_buffer]['latitude'][-1])]
-        figure['data'][1]['lon'] = [float(data['minute_data' + string_buffer]['longitude'][-1])]
+        figure['data'][1]['x'] = [float(data['minute_data_0']['x'][-1])]
+        figure['data'][1]['y'] = [float(data['minute_data_0']['y'][-1])]
 
     # If toggle is off, hide path
     if not toggle:
-        figure['data'][0]['lat'] = []
-        figure['data'][0]['lon'] = []
+        figure['data'][0]['x'] = []
+        figure['data'][0]['y'] = []
     return figure
-
-# def update_word_map(clicks, toggle, satellite_type, old_figure, data, data_config):
-#     figure = old_figure
-#     string_buffer = ''
- 
- 
-#     # Set string buffer as well as drawing the satellite path
-#     if data_config['satellite_type'] == 0:
-#         string_buffer = '_0'
-#         figure['data'][0]['y'] = [df_gps_m_0['lat'][i] for i in range(3600)]
-#         figure['data'][0]['x'] = [df_gps_m_0['lon'][i] for i in range(3600)]
-
-#     elif data_config['satellite_type'] == 1:
-#         string_buffer = '_1'
-#         figure['data'][0]['y'] = [df_gps_m_1['lat'][i] for i in range(3600)]
-#         figure['data'][0]['x'] = [df_gps_m_1['lon'][i] for i in range(3600)]
-#     else:
-#         figure['data'][0]['y'] = [df_gps_m['lat'][i] for i in range(3600)]
-#         figure['data'][0]['x'] = [df_gps_m['lon'][i] for i in range(3600)]
-
-#     if clicks % 2 == 0:
-
-#         figure['data'][1]['x'] = [float(data['minute_data' + string_buffer]['latitude'][-1])]
-#         figure['data'][1]['y'] = [float(data['minute_data' + string_buffer]['longitude'][-1])]
-
-#     # If toggle is off, hide path
-#     if not toggle:
-#         figure['data'][0]['x'] = []
-#         figure['data'][0]['y'] = []
-#     return figure
 
 
 ##############################################################################################################
@@ -1039,43 +922,33 @@ def update_time(interval):
      Input('satellite-dropdown-component', 'value')],
     [State('store-data-config', 'data'),
      State('store-data', 'data'),
-     State('store-StateEst-data', 'date')]
+     State('store-StateEst-data', 'data')]
 )
 def update_non_gps_component(clicks, satellite_type, data_config, data ,sate_data):
-    string_buffer = ''
-    if data_config['satellite_type'] == 0:
-        string_buffer = '_0'
-    if data_config['satellite_type'] == 1:
-        string_buffer = '_1'
 
     new_data = []
     components_list = ['elevation', 'temperature', 'speed', 'fuel', 'battery']
 
     # Update each graph value
     for component in components_list:
-        new_data.append(data['minute_data' + string_buffer][component][-1])
+        new_data.append(data['minute_data_0' ][component][-1])
 
     return new_data
 
 
 @app.callback(
-    [Output('control-panel-latitude-component', 'value'),
-     Output('control-panel-longitude-component', 'value')],
+    [Output('control-panel-x-component', 'value'),
+     Output('control-panel-y-component', 'value')],
     [Input('interval', 'n_intervals'),
      Input('satellite-dropdown-component', 'value')],
     [State('store-data-config', 'data'),
      State('store-data', 'data')]
 )
 def update_gps_component(clicks, satellite_type, data_config, data):
-    string_buffer = ''
-    if data_config['satellite_type'] == 0:
-        string_buffer = '_0'
-    if data_config['satellite_type'] == 1:
-        string_buffer = '_1'
 
     new_data = []
-    for component in ['latitude', 'longitude']:
-        val = list(data['minute_data' + string_buffer][component][-1])
+    for component in ['x', 'y']:
+        val = list(data['minute_data_0'][component][-1])
         if val[0] == '-':
             new_data.append('0' + ''.join(val[1::]))
         else:
@@ -1084,24 +957,19 @@ def update_gps_component(clicks, satellite_type, data_config, data):
 
 
 @app.callback(
-    [Output('control-panel-latitude-component', 'color'),
-     Output('control-panel-longitude-component', 'color')],
+    [Output('control-panel-x-component', 'color'),
+     Output('control-panel-y-component', 'color')],
     [Input('interval', 'n_intervals'),
      Input('satellite-dropdown-component', 'value')],
     [State('store-data-config', 'data'),
      State('store-data', 'data')]
 )
 def update_gps_color(clicks, satellite_type, data_config, data):
-    string_buffer = ''
-    if data_config['satellite_type'] == 0:
-        string_buffer = '_0'
-    if data_config['satellite_type'] == 1:
-        string_buffer = '_1'
 
     new_data = []
 
-    for component in ['latitude', 'longitude']:
-        value = float(data['minute_data' + string_buffer][component][-1])
+    for component in ['x', 'y']:
+        value = float(data['minute_data_0'][component][-1])
         if value < 0:
             new_data.append('#ff8e77')
         else:
