@@ -97,7 +97,7 @@ class Dash:
             [
                 dcc.Graph(id='live-graph', animate=True),
                 dcc.Interval(
-                    id='graph-update',
+                    id='    ',  
                     interval=1 * 1000
                 ),
             ]
@@ -108,7 +108,7 @@ class Dash:
 
         @self.app.callback(
             Output('live-graph', 'figure'),
-            [Input('graph-update', 'n_intervals')]
+            [Input('    ', 'n_intervals')]
         )
         def update_graph_scatter(input_data):
             i = self.i
