@@ -102,7 +102,7 @@ class Dash:
                 ),
             ]
         )
-        X_time = deque(maxlen=20)
+        X_time = deque(maxlen=5)
         Y_speed = deque(maxlen=20)
 
 
