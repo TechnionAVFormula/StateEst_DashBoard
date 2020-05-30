@@ -1,3 +1,6 @@
+
+
+
 import dash
 from dash.dependencies import Output, Input
 import dash_core_components as dcc
@@ -7,6 +10,7 @@ import plotly.graph_objs as go
 
 #our imports:
 from data.StateEst_DataFromMessage import ParseDataFromStateEstMessage
+from config import BACKGROUND_COLOR , IS_DARK , DASH_THEME , FONT_COLOR, IS_UPDATING_DASH,  DashThemeEnum
 
 ''' Map: '''
 map_figure = go.Figure()
@@ -51,6 +55,8 @@ class StateDash():
 
     def run(self):
         self.app.run_server(debug=True)
+
+
 
 
 if __name__ == '__main__':

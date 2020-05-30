@@ -7,6 +7,9 @@ class DashThemeEnum(Enum):
 # Choose Theme:
 DASH_THEME = DashThemeEnum.Dark
 
+# Is self updating:
+IS_UPDATING_DASH = True
+
 
 if DASH_THEME == DashThemeEnum.Dark:
     BACKGROUND_COLOR = '#black'
