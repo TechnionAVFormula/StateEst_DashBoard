@@ -120,9 +120,18 @@ class Dash:
             y=list(Y_speed),
             name='Speed',
             mode= 'lines+markers')
-            return {'data': [data],'layout' : go.Layout(xaxis=dict(range=[min(X_time),max(X_time)]),
-                                            yaxis=dict(range=[min(Y_speed),max(Y_speed)]),  xaxis_title="Time[Second]",
-            yaxis_title="speed[KMH]")}
+
+            output_dict = {
+                'data': [data],
+                'layout' : go.Layout(
+                    xaxis=dict(range=[min(X_time),max(X_time)]),
+                    yaxis=dict(range=[min(Y_speed),max(Y_speed)]),  
+                    xaxis_title="Time[Second]",
+                    yaxis_title="speed[KMH]"
+                )
+            }
+
+            return output_dict
 
 
         self.app.run_server(debug=True)
