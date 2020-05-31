@@ -17,54 +17,17 @@ from data.StateEst_DataFromMessage import ParseDataFromStateEstMessage
 
 #Here you can set the default values of the self updating class: 
 class AutoUpdateControl():
-    update_interval = 3*1000 #[msec]
+    update_interval = 250 #[msec]
     is_disabled = False  #set true to stop auto update
     index = 0 #will count from 0 until the end of our data
 
 
-def map_data_scatter_from_car_state(x,y,Vx,Vy,theta):
-    data_dict = {
-        'x':x,
-        'y':y,
-        'text': f"car position:  x={x} ,y={y}",
-        'mode': 'markers',
-        'marker': {
-            'size': 15 , 
-            'line': {'width': 0.5 , 'color': 'black'}
-        },
-        'opacity': 0.7,
-        #Added:
-        'name': 'Car Position',
-        'type': 'scatter'           
-    }   
-    data_scatter = go.Scatter(
-        x=list([x]),
-        y=list([y]),
-        name='Car Position',
-        mode= 'markers'
-        # mode= 'lines+markers'
-    )
-    return data_dict , data_scatter
+def current_index_string(index):
+    return f"Current index is  {index:5}"
 
+def current_time_string(time_msec):
+    return f"Current time is  {time_msec:015} [mili-sec]"
 
-map_layout_go_object = go.Layout(
-    xaxis=dict(range=[-60  ,60] ),
-    yaxis=dict(range=[-15,15] ),  
-    xaxis_title="Temp xLabel",
-    yaxis_title="Temp yLabel"
-)
-
-map_layout_dict = dict(
-        xaxis =dict(title='yEast [m]'),
-        yaxis =dict(title='xNorth [m]'),
-        margin=dict(l=0,b=0,t=0,r=0),
-        legend=dict(x=0,y=0),
-        hovermode='closest'
-)        
-
-
-#starting values for map:
-map_data , _  = map_data_scatter_from_car_state(0,0,0,0,0)
 
 ''' Entire Window Layout: '''
 app_layout = html.Div(children=[
@@ -84,10 +47,12 @@ app_layout = html.Div(children=[
         n_intervals = 0
     ),
     #Current index/itteration text:
-    html.Div(id='current_index' , children= f"Current Index is  {0:5}" )
+    html.Div(id='current_index' , children= current_index_string(0) ),
     #Current simulation time text:
+    html.Div(id='current_time' , children= current_time_string(0) )
     # buttons:
 ]) 
+
 
 
 class StateDash():
@@ -96,54 +61,71 @@ class StateDash():
         self.data = ParseDataFromStateEstMessage()
         self.auto_update_control = AutoUpdateControl()
         #app stuff:
-        self.app =  dash.Dash(__name__)
-        self.app.layout = app_layout 
-        self.app_server = self.app.server
+        self.app =  dash.Dash(__name__)  # The app itself
+        self.app.layout = app_layout  #The app's layout
+        self.app_server = self.app.server #for debugging
 
 
-        '''Defint our callback: '''
+        '''Defint our callbacks: ''' # Callback definition inside class __init__ as this is kind of like a property of our class.
+
         @self.app.callback(
             #from component with id='map' (our main map)  update the field called 'figure':
-            Output('map', 'figure'),  
+            [Output('map', 'figure'),
+             Output('current_index' , 'children'),
+             Output('current_time'  , 'children')],
             [Input('interval-component' , 'n_intervals')]
         )
         def per_interval_callback(interval):
-            self.print_on_per_interval_callback(interval)
+            # index and itteration info:
+            index = self.auto_update_control.index 
+            self.print_on_per_interval_callback(interval,index)
             self.auto_update_control.index = self.auto_update_control.index  + 1
             
-            #Values from current moment in time:
+            #Getting plotly oriented scatters and layout from data at current index: 
+            map_go_scatter , map_go_layout = self.map_scatter_and_layout_from_current_data(index) 
+            # Get current time:
+            current_time = self.data[index]['time']
 
-            #Getting plotly oriented scatters from data: 
-            _ , map_scatter_data = map_data_scatter_from_car_state(interval,2,0,0,0) 
-
-            data = plotly.graph_objs.Scatter(
-                x=list([5,interval]),
-                y=list([6,7]),
-                name='Speed',
-                mode= 'lines+markers'
-            )
-
-            output_dict = {
-                'data': list([data]),
-                'layout' : go.Layout(
-                    xaxis=dict(range=[-60, 60]),
-                    yaxis=dict(range=[-5 , 25]),  
-                    xaxis_title="Time[Second]",
-                    yaxis_title="speed[KMH]"
-                )
+            '''All output values:'''
+            figure_dict = {
+                'data'  : [map_go_scatter],
+                'layout': map_go_layout
             }
+            index_str = current_index_string(index)
+            time_str  = current_time_string(current_time)
 
-            return output_dict
-
+            #return: map.figure  , current_index.children   , current_time.children
+            return   figure_dict , index_str                , time_str
+    
     
     '''Methods: '''
-    def print_on_per_interval_callback(self, interval):
-        print(f"{interval:5} intervals have passed")
+    def print_on_per_interval_callback(self, interval , index):
+        print(f"[interval,index] = [{interval:5},{index:5}]")
+
+
 
     def run(self):
         self.app.run_server(debug=True)
 
+    
+    def map_scatter_and_layout_from_current_data(self, index):
+        current_data = self.data[index]
 
+        data_scatter = go.Scatter(
+            x=list([ current_data['car_state']['x'] ]),
+            y=list([ current_data['car_state']['y'] ]),
+            name='Car Position',
+            mode= 'markers'
+            # mode= 'lines+markers'
+        )
+        map_go_layout  = go.Layout(
+            xaxis=dict(range=[-60  ,60] ),
+            yaxis=dict(range=[-15,15] ),  
+            xaxis_title="yEast [m]",
+            yaxis_title="xNorth [m]"
+        )
+        
+        return data_scatter , map_go_layout
 
 
 
