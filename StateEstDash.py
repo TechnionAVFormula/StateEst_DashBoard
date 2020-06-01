@@ -17,7 +17,7 @@ from data.StateEst_DataFromMessage import ParseDataFromStateEstMessage
 
 #Here you can set the default values of the self updating class: 
 class AutoUpdateControl():
-    update_interval = 250 #[msec]
+    update_interval = 0.05*1000 #[msec]
     is_disabled = False  #set true to stop auto update
     index = 0 #will count from 0 until the end of our data
 
@@ -49,7 +49,10 @@ app_layout = html.Div(children=[
     #Current index/itteration text:
     html.Div(id='current_index' , children= current_index_string(0) ),
     #Current simulation time text:
-    html.Div(id='current_time' , children= current_time_string(0) )
+    html.Div(id='current_time' , children= current_time_string(0) ),
+    # update interval in mili-sec:
+    html.Div(id='update_interval_mili_sec' , children= f"Auto refresh interval is {AutoUpdateControl.update_interval} [mili-sec]")
+
     # buttons:
 ]) 
 
@@ -78,7 +81,7 @@ class StateDash():
         def per_interval_callback(interval):
             # index and itteration info:
             index = self.auto_update_control.index 
-            self.print_on_per_interval_callback(interval,index)
+            self.act_on_per_interval_callback(interval,index)
             self.auto_update_control.index = self.auto_update_control.index  + 1
             
             #Getting plotly oriented scatters and layout from data at current index: 
@@ -99,7 +102,11 @@ class StateDash():
     
     
     '''Methods: '''
-    def print_on_per_interval_callback(self, interval , index):
+    def act_on_per_interval_callback(self, interval , index):
+        #reset our running index if app restarted:
+        if interval<=0 :
+            self.auto_update_control.index = 0
+        #print:
         print(f"[interval,index] = [{interval:5},{index:5}]")
 
 
